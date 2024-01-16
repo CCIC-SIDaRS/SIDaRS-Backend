@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "1BCRqovTItpu9cb+vh7XUwbbH9ZsDb7Bl48QSGZlmKG/A9E/myVGlujFT7jz+8jtud4sdwuTAgybkw9+HYCkCQ==",
+  "dgSpecHash": "iSbV54nk/xVs1ZZ+NbzpK0dFtQu8KLsrwNHhDvTztzrTjAsrDV+SQ8OYnpEOzPv9qz9zxDSl5uLfqWySg5y96g==",
   "success": true,
-  "projectFilePath": "C:\\Users\\skier\\Documents\\Code\\CTF2023\\Flag5Beginner\\PhatWalrus\\PhatWalrus.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "C:\\Users\\skier\\Documents\\Code\\SIDaRS-Backend\\PhatWalrus\\PhatWalrus.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\skier\\.nuget\\packages\\ssh.net\\2023.0.1\\ssh.net.2023.0.1.nupkg.sha512",
+    "C:\\Users\\skier\\.nuget\\packages\\sshnet.security.cryptography\\1.3.0\\sshnet.security.cryptography.1.3.0.nupkg.sha512"
+  ],
   "logs": []
 }

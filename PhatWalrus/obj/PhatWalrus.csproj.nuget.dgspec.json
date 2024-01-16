@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\skier\\Documents\\Code\\CTF2023\\Flag5Beginner\\PhatWalrus\\PhatWalrus.csproj": {}
+    "C:\\Users\\skier\\Documents\\Code\\SIDaRS-Backend\\PhatWalrus\\PhatWalrus.csproj": {}
   },
   "projects": {
-    "C:\\Users\\skier\\Documents\\Code\\CTF2023\\Flag5Beginner\\PhatWalrus\\PhatWalrus.csproj": {
+    "C:\\Users\\skier\\Documents\\Code\\SIDaRS-Backend\\PhatWalrus\\PhatWalrus.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\skier\\Documents\\Code\\CTF2023\\Flag5Beginner\\PhatWalrus\\PhatWalrus.csproj",
+        "projectUniqueName": "C:\\Users\\skier\\Documents\\Code\\SIDaRS-Backend\\PhatWalrus\\PhatWalrus.csproj",
         "projectName": "PhatWalrus",
-        "projectPath": "C:\\Users\\skier\\Documents\\Code\\CTF2023\\Flag5Beginner\\PhatWalrus\\PhatWalrus.csproj",
+        "projectPath": "C:\\Users\\skier\\Documents\\Code\\SIDaRS-Backend\\PhatWalrus\\PhatWalrus.csproj",
         "packagesPath": "C:\\Users\\skier\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\skier\\Documents\\Code\\CTF2023\\Flag5Beginner\\PhatWalrus\\obj\\",
+        "outputPath": "C:\\Users\\skier\\Documents\\Code\\SIDaRS-Backend\\PhatWalrus\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -44,6 +44,12 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "SSH.NET": {
+              "target": "Package",
+              "version": "[2023.0.1, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
