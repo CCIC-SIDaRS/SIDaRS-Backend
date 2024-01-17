@@ -5,10 +5,11 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace SSHBackend
 {
-    class SSHBackend
+    class Testing
     {
         private static void Main(string[] args)
         {
+            SSHConnection sSHConnection = new SSHConnection();
             Console.WriteLine("address");
             string address = Console.ReadLine();
             Console.WriteLine("username");
@@ -17,12 +18,15 @@ namespace SSHBackend
             string password = Console.ReadLine();
             Console.WriteLine("command");
             string command = Console.ReadLine();
-            Console.WriteLine (SSHInterface(address, username, password, command));
+            Console.WriteLine(sSHConnection.SSHInterface(address, username, password, command));
         }
+    }
+    class SSHConnection
+    {
 
         // Can send a command and recieve a response to the command
         // returns a string with the response to the command -- either the error or the result
-        public static string SSHInterface(string hostaddress, string username, string password, string command)
+        public string SSHInterface(string hostaddress, string username, string password, string command)
         {
             using (var client = new SshClient(hostaddress, username, password))
             {
