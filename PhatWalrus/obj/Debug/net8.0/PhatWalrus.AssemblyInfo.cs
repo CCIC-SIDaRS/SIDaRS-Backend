@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PhatWalrus")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4db988a6fea771f92c996911e6c4e41cdb62b99e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+956aa6b7e44b4553556bb639349fcd2582624072")]
 [assembly: System.Reflection.AssemblyProductAttribute("PhatWalrus")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PhatWalrus")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
