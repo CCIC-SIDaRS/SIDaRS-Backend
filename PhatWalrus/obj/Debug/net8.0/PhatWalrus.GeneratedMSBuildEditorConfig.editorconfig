@@ -8,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = PhatWalrus
-build_property.ProjectDir = C:\Users\skier\Documents\Code\SIDaRS-Backend\PhatWalrus\
+build_property.ProjectDir = C:\Users\rkispert.CIC-LAP-81CVFX3\source\repos\CCIC-SIDaRS\SIDaRS-Backend\PhatWalrus\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
