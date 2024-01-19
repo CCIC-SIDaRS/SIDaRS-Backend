@@ -78,7 +78,7 @@ namespace SSHBackend
         public string[] CiscoCommandCompletion(string[] currentCommand)
         {
 
-            return "";
+            return [""];
         }
     }
 }
