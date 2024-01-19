@@ -1,7 +1,9 @@
 ﻿using Renci.SshNet;
-using SshNet;
+using System.Text.Json;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Principal;
+using System.Transactions;
 
 namespace SSHBackend
 {
@@ -9,16 +11,11 @@ namespace SSHBackend
     {
         private static void Main(string[] args)
         {
-            SSHConnection sSHConnection = new SSHConnection();
-            Console.WriteLine("address");
-            string address = Console.ReadLine();
-            Console.WriteLine("username");
-            string username = Console.ReadLine();
-            Console.WriteLine("password");
-            string password = Console.ReadLine();
-            Console.WriteLine("command");
-            string command = Console.ReadLine();
-            Console.WriteLine(sSHConnection.SSHInterface(address, username, password, command));
+            SSHConnection something = new SSHConnection();
+            if (Console.ReadLine() == "y")
+            {
+                something.AddClient();
+            }
         }
     }
     class SSHConnection
@@ -45,6 +42,26 @@ namespace SSHBackend
                     return result;
                 }
             }
+        }
+
+        public void AddClient()
+        {
+            Dictionary<string, string> data = new();
+            Console.WriteLine("Address");
+            data["address"] = Console.ReadLine();
+            Console.WriteLine("Username");
+            data["username"] = Console.ReadLine();
+            Console.WriteLine("Password");
+            data["password"] = Console.ReadLine();
+            string json = JsonSerializer.Serialize(data);
+            File.WriteAllText(@".\SIDaRS-Backend\PhatWalrus\SSHClients.sidars", json);
+        }
+
+        // takes in the command when the tab key is pressed and returns the most likely completed command
+        public string CiscoCommandCompletion(string currentCommand)
+        {
+
+            return "";
         }
     }
 }
