@@ -12,7 +12,7 @@ namespace Testing
     {
         private static void Main(string[] args)
         {
-            SSHConnection something = new SSHConnection();
+            SSHManager something = new SSHManager(@"assets\");
             if (Console.ReadLine() == "y")
             {
                 something.AddClient();

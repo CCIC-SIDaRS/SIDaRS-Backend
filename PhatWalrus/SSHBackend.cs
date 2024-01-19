@@ -10,7 +10,6 @@ namespace SSHBackend
 {
     class SSHConnection
     {
-
         // Can send a command and recieve a response to the command
         // returns a string with the response to the command -- either the error or the result
         public string SSHInterface(string hostaddress, string username, string password, string command)
@@ -34,7 +33,16 @@ namespace SSHBackend
                 }
             }
         }
+    }
 
+    class SSHManager
+    {
+        private string assets { get; set; }
+
+        public SSHManager(string assets)
+        {
+            this.assets = assets;
+        }
         public void AddClient()
         {
             Dictionary<string, string> data = new();
@@ -45,11 +53,10 @@ namespace SSHBackend
             Console.WriteLine("Password");
             data["password"] = Console.ReadLine();
             string json = JsonSerializer.Serialize(data);
-            File.WriteAllText(@".\SSHClients.sidars", json);
+            File.WriteAllText(@".\"+assets+"SSHClients.sidars", json);
         }
-
         // takes in the command when the tab key is pressed and returns the most likely completed command
-        public string CiscoCommandCompletion(string currentCommand)
+        public string[] CiscoCommandCompletion(string[] currentCommand)
         {
 
             return "";
