@@ -10,28 +10,47 @@ namespace SSHBackend
 {
     class SSHConnection
     {
+        private SshClient client { get; set; }
+
         // Can send a command and recieve a response to the command
         // returns a string with the response to the command -- either the error or the result
-        public string SSHInterface(string hostaddress, string username, string password, string command)
+        public SSHConnection(string hostaddress, string username, string password, string command)
         {
-            using (var client = new SshClient(hostaddress, username, password))
+            client = new SshClient(hostaddress, username, password);
+        }
+
+        private void Connect()
+        {
+            try
             {
                 client.Connect();
-                client.RunCommand(command);
-                var _command = client.CreateCommand(command);
-                _command.Execute();
-                string result = _command.Result;
-                string error = _command.Error;
-                client.Disconnect();
-                if (error != "")
-                {
-                    throw new Exception("SSH Error: " + error);
-                }
-                else
-                {
-                    return result;
-                }
+            }catch (Exception ex) 
+            {
+                throw new Exception(ex.ToString());
             }
+            
+        }
+        private string Execute (string command)
+        {
+            SshCommand _command = client.CreateCommand(command);
+            _command.Execute();
+            string result = _command.Result;
+            if (_command.Error != "")
+            {
+                throw new Exception("SSH Command Error " + _command.Error);
+            }
+            return result;
+        }
+        private void Diconnect()
+        {
+            try
+            {
+                client.Disconnect();
+            }catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            
         }
     }
 
