@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="SSHClients.sidars">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="assests\SSHClients.sidars">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

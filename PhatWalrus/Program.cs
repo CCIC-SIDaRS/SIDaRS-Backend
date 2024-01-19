@@ -12,14 +12,7 @@ namespace Testing
     {
         private static void Main(string[] args)
         {
-            SSHConnection something = new SSHConnection();
-            if (Console.ReadLine() == "y")
-            {
-                something.AddClient();
-            }
-            string json = File.ReadAllText(@".\SSHClients.sidars");
-            Dictionary <string, string> items = JsonSerializer.Deserialize<Dictionary<string,string>>(json);
-            Console.WriteLine(items["password"]);
+            
         }
     }
 }
