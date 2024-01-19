@@ -16,6 +16,9 @@ namespace SSHBackend
             {
                 something.AddClient();
             }
+            string json = File.ReadAllText(@".\SSHClients.sidars");
+            Dictionary <string, string> items = JsonSerializer.Deserialize<Dictionary<string,string>>(json);
+            Console.WriteLine(items["password"]);
         }
     }
     class SSHConnection
@@ -54,7 +57,7 @@ namespace SSHBackend
             Console.WriteLine("Password");
             data["password"] = Console.ReadLine();
             string json = JsonSerializer.Serialize(data);
-            File.WriteAllText(@".\SIDaRS-Backend\PhatWalrus\SSHClients.sidars", json);
+            File.WriteAllText(@".\SSHClients.sidars", json);
         }
 
         // takes in the command when the tab key is pressed and returns the most likely completed command
