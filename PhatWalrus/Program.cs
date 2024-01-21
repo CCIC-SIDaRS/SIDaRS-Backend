@@ -11,13 +11,6 @@ namespace Testing
     {
         private static void Main(string[] args)
         {
-            SSHManager something = new SSHManager(@"C:\Users\skier\Documents\Code\SIDaRS-Backend\PhatWalrus\assests\");
-            something.AddClient();
-            Dictionary<string, Dictionary<string, string>> client = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(File.ReadAllText(@"C:\Users\skier\Documents\Code\SIDaRS-Backend\PhatWalrus\assests\SSHClients.sidars"));
-            SymmetricEncryption something1 = new SymmetricEncryption("12345678!Aa", null);
-            something1.encryptedText = client["Testing"]["password"];
-            something1.IV = client["Testing"]["IV"];
-            Console.WriteLine(something1.Decrypt());
             //TestMultipleExecution();
         }
 
@@ -41,6 +34,19 @@ namespace Testing
                 }
             }
             TestSwitch.Diconnect();
+        }
+        private static void ClientAdditionAndEncryption()
+        {
+            SSHManager something = new SSHManager(@"C:\Users\skier\Documents\Code\SIDaRS-Backend\PhatWalrus\assests\");
+            something.AddClient();
+        }
+        private static void ClientDecryption()
+        {
+            Dictionary<string, Dictionary<string, string>> client = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(File.ReadAllText(@"C:\Users\skier\Documents\Code\SIDaRS-Backend\PhatWalrus\assests\SSHClients.sidars"));
+            SymmetricEncryption something1 = new SymmetricEncryption("12345678!Aa", null);
+            something1.encryptedText = client["Testing"]["password"];
+            something1.IV = client["Testing"]["IV"];
+            Console.WriteLine(something1.Decrypt());
         }
     }
 }

@@ -87,8 +87,6 @@ namespace SSHBackend
             SymmetricEncryption encryptor = new("12345678!Aa", password);
             encryptor.Encrypt();
             password = encryptor.encryptedText;
-            Console.WriteLine(password);
-            
             currentClients[ID] = new Dictionary<string, string> { ["address"] = address, ["username"] = username, ["password"] = password, ["IV"] = encryptor.IV };
             string json = JsonSerializer.Serialize(currentClients);
             File.WriteAllText(assets + "SSHClients.sidars", string.Empty);
@@ -136,7 +134,6 @@ namespace SSHBackend
             cryptoStream.Write(Encoding.Unicode.GetBytes(encryptionSource));
             cryptoStream.FlushFinalBlock();
             cryptoStream.Close();
-
             encryptedText = Convert.ToBase64String(output.ToArray());
             IV = Convert.ToBase64String(aes.IV);
         }
@@ -146,7 +143,6 @@ namespace SSHBackend
             byte[] encrpytedBytes = Convert.FromBase64String(encryptedText);
             using Aes aes = Aes.Create();
             aes.Key = DeriveKey();
-            var testing = Convert.FromBase64String(IV);
             aes.IV = Convert.FromBase64String(IV);
             aes.Padding = PaddingMode.PKCS7;
             using MemoryStream input = new(encrpytedBytes);
