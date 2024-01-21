@@ -11,15 +11,16 @@ namespace Testing
     {
         private static void Main(string[] args)
         {
-            //TestMultipleExecution();
+            TestMultipleExecution();
         }
 
         // Tests the continuous execution of SSH commands using the SSH connection class
         private static void TestMultipleExecution()
         { 
             Dictionary <string, Dictionary<string, string>> client = JsonSerializer.Deserialize<Dictionary<string,Dictionary<string, string>>>(File.ReadAllText(@"C:\Users\skier\Documents\Code\SIDaRS-Backend\PhatWalrus\assests\SSHClients.sidars"));
-            SSHConnection TestSwitch = new SSHConnection(client["TestSwitch"]["address"], client["TestSwitch"]["username"], client["TestSwitch"]["password"]);
+            SSHConnection TestSwitch = new SSHConnection(client["Testing"]["address"], client["Testing"]["username"], ClientDecryption());
             TestSwitch.Connect();
+            TestSwitch.CreateShellStream();
             while (true)
             {
                 Console.WriteLine("Enter Command: ");
@@ -30,7 +31,7 @@ namespace Testing
                 }
                 else
                 {
-                    Console.WriteLine (TestSwitch.ExecuteExecChannel(command));
+                    Console.WriteLine (TestSwitch.ExecuteShellStream(command));
                 }
             }
             TestSwitch.Diconnect();
@@ -45,13 +46,13 @@ namespace Testing
             string masterPassword = Console.ReadLine();
             something.AddClient(ID, address, username, password, masterPassword);
         }
-        private static void ClientDecryption()
+        private static string ClientDecryption()
         {
             Dictionary<string, Dictionary<string, string>> client = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(File.ReadAllText(@"C:\Users\skier\Documents\Code\SIDaRS-Backend\PhatWalrus\assests\SSHClients.sidars"));
             SymmetricEncryption something1 = new SymmetricEncryption("12345678!Aa", null);
             something1.encryptedText = client["Testing"]["password"];
             something1.IV = client["Testing"]["IV"];
-            Console.WriteLine(something1.Decrypt());
+            return something1.Decrypt();
         }
     }
 }

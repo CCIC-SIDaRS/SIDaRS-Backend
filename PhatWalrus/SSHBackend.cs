@@ -15,6 +15,7 @@ namespace SSHBackend
     class SSHConnection
     {
         private SshClient client { get; set; }
+        private ShellStream stream { get; set; }
 
         // Can send a command and recieve a response to the command
         // returns a string with the response to the command -- either the error or the result
@@ -34,6 +35,12 @@ namespace SSHBackend
             }
             
         }
+
+        public void CreateShellStream()
+        {
+            stream = client.CreateShellStream("customCommand", 80, 24, 800, 600, 1024);
+        }
+
         public string ExecuteExecChannel (string command)
         {
             SshCommand _command = client.CreateCommand(command);
@@ -47,6 +54,19 @@ namespace SSHBackend
             }
             return result;
         }
+
+        public string ExecuteShellStream (string command)
+        {
+            StringBuilder answer;
+
+            StreamReader reader = new StreamReader(stream);
+            StreamWriter writer = new StreamWriter(stream);
+            writer.AutoFlush = true;
+            WriteStream(command , writer, stream);
+            answer = ReadStream(reader);
+            return answer.ToString();
+        }
+
         public void Diconnect()
         {
             try
@@ -57,6 +77,27 @@ namespace SSHBackend
                 throw new Exception(ex.ToString());
             }
             
+        }
+
+        private void WriteStream(string cmd, StreamWriter writer, ShellStream stream)
+        {
+            writer.WriteLine(cmd);
+            while (stream.Length == 0)
+            {
+                Thread.Sleep(500);
+            }
+        }
+
+        private StringBuilder ReadStream(StreamReader reader)
+        {
+            StringBuilder result = new StringBuilder();
+
+            string line;
+            while ((line = reader.ReadLine()) != null)
+            {
+                result.AppendLine(line);
+            }
+            return result;
         }
     }
 
