@@ -68,26 +68,18 @@ namespace SSHBackend
         {
             this.assets = assets;
         }
-        public void AddClient()
+        public void AddClient(string ID, string address, string username, string devicePassword, string masterPassword)
         {
             Dictionary<string, Dictionary<string, string>> currentClients = new Dictionary<string, Dictionary<string, string>>();
             try
             {
                 currentClients = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(File.ReadAllText(assets + "SSHClients.sidars")) ?? new Dictionary<string, Dictionary<string, string>>();
             }catch (JsonException) { }
-            
-            Console.WriteLine("Device ID");
-            string ID = Console.ReadLine();
-            Console.WriteLine("Address");
-            string address = Console.ReadLine();
-            Console.WriteLine("Username");
-            string username = Console.ReadLine();
-            Console.WriteLine("Password");
             string password = Console.ReadLine();
-            SymmetricEncryption encryptor = new("12345678!Aa", password);
+            SymmetricEncryption encryptor = new(masterPassword, devicePassword);
             encryptor.Encrypt();
-            password = encryptor.encryptedText;
-            currentClients[ID] = new Dictionary<string, string> { ["address"] = address, ["username"] = username, ["password"] = password, ["IV"] = encryptor.IV };
+            devicePassword = encryptor.encryptedText;
+            currentClients[ID] = new Dictionary<string, string> { ["address"] = address, ["username"] = username, ["password"] = devicePassword, ["IV"] = encryptor.IV };
             string json = JsonSerializer.Serialize(currentClients);
             File.WriteAllText(assets + "SSHClients.sidars", string.Empty);
             File.WriteAllText(assets+"SSHClients.sidars", json);
@@ -99,12 +91,16 @@ namespace SSHBackend
             return [""];
         }
     }
+
+    // Uses AES to encrypt and decrypt strings, interface is a little jank right now
+    // This class should use the master password to the application as the encryption key and the master password should be hashed
+    // and only stored in memory for a limited period of time once correctly entered
     class SymmetricEncryption
     {
         private string encryptionPassword { get; set; }
         private string encryptionSource {  get; set; }
         public string encryptedText { get; set; }
-        public string IV;
+        public string IV { get; set; }
 
         public SymmetricEncryption (string encryptionPassword, string? encryptionSource)
         {
