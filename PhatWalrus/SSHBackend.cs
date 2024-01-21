@@ -34,7 +34,7 @@ namespace SSHBackend
             }
             
         }
-        public string Execute (string command)
+        public string ExecuteExecChannel (string command)
         {
             SshCommand _command = client.CreateCommand(command);
             Console.WriteLine("exeucting: " + _command.CommandText);
@@ -43,7 +43,7 @@ namespace SSHBackend
             string result = _command.Result;
             if (_command.Error != "")
             {
-                //throw new Exception("SSH Command Error " + _command.Error);
+                throw new Exception("SSH Command Error " + _command.Error);
             }
             return result;
         }
@@ -99,11 +99,15 @@ namespace SSHBackend
     {
         private string encryptionPassword { get; set; }
         private string encryptionSource {  get; set; }
-        public string encryptedText { get; set; }
-        public string IV { get; set; }
+        public string? encryptedText { get; set; }
+        public string? IV { get; set; }
 
-        public SymmetricEncryption (string encryptionPassword, string? encryptionSource)
+        public SymmetricEncryption(string encryptionPassword, string? encryptionSource)
         {
+            if (encryptionPassword == null)
+            {
+                throw new ArgumentNullException(nameof(encryptionPassword));
+            }
             this.encryptionPassword = encryptionPassword;
             this.encryptionSource = encryptionSource ?? "";
         }

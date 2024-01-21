@@ -30,7 +30,7 @@ namespace Testing
                 }
                 else
                 {
-                    Console.WriteLine (TestSwitch.Execute(command));
+                    Console.WriteLine (TestSwitch.ExecuteExecChannel(command));
                 }
             }
             TestSwitch.Diconnect();
@@ -38,7 +38,12 @@ namespace Testing
         private static void ClientAdditionAndEncryption()
         {
             SSHManager something = new SSHManager(@"C:\Users\skier\Documents\Code\SIDaRS-Backend\PhatWalrus\assests\");
-            something.AddClient();
+            string ID = Console.ReadLine();
+            string address = Console.ReadLine();
+            string username = Console.ReadLine();
+            string password = Console.ReadLine();
+            string masterPassword = Console.ReadLine();
+            something.AddClient(ID, address, username, password, masterPassword);
         }
         private static void ClientDecryption()
         {
