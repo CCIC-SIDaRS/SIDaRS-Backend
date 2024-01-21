@@ -6,6 +6,9 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
+using System.IO;
+using System.Security;
+using System.Security.Principal;
 
 namespace SSHBackend
 {
@@ -71,7 +74,7 @@ namespace SSHBackend
             try
             {
                 currentClients = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(File.ReadAllText(assets + "SSHClients.sidars")) ?? new Dictionary<string, Dictionary<string, string>>();
-            }catch (Exception) { }
+            }catch (JsonException) { }
             
             Console.WriteLine("Device ID");
             string ID = Console.ReadLine();
@@ -81,7 +84,12 @@ namespace SSHBackend
             string username = Console.ReadLine();
             Console.WriteLine("Password");
             string password = Console.ReadLine();
-            currentClients[ID] = new Dictionary<string, string> { ["address"] = address, ["username"] = username, ["password"] = password };
+            SymmetricEncryption encryptor = new("12345678!Aa", password);
+            encryptor.Encrypt();
+            password = encryptor.encryptedText;
+            Console.WriteLine(password);
+            
+            currentClients[ID] = new Dictionary<string, string> { ["address"] = address, ["username"] = username, ["password"] = password, ["IV"] = encryptor.IV };
             string json = JsonSerializer.Serialize(currentClients);
             File.WriteAllText(assets + "SSHClients.sidars", string.Empty);
             File.WriteAllText(assets+"SSHClients.sidars", json);
@@ -91,6 +99,64 @@ namespace SSHBackend
         {
 
             return [""];
+        }
+    }
+    class SymmetricEncryption
+    {
+        private string encryptionPassword { get; set; }
+        private string encryptionSource {  get; set; }
+        public string encryptedText { get; set; }
+        public string IV;
+
+        public SymmetricEncryption (string encryptionPassword, string? encryptionSource)
+        {
+            this.encryptionPassword = encryptionPassword;
+            this.encryptionSource = encryptionSource ?? "";
+        }
+        private byte[] DeriveKey()
+        {
+            byte[] salt = GenerateSalt(16);
+            int iterations = 10000;
+            int keyLength = 16;
+            var hashMethod = HashAlgorithmName.SHA384;
+            return Rfc2898DeriveBytes.Pbkdf2(Encoding.Unicode.GetBytes(encryptionPassword), salt, iterations, hashMethod, keyLength);
+        }
+        private byte[] GenerateSalt(int size)
+        {
+            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
+            byte[] buff = new byte[size];
+            rng.GetBytes(buff);
+            return buff;
+        }
+
+        public void Encrypt()
+        {
+            using Aes aes = Aes.Create();
+            aes.Key = DeriveKey();
+            aes.Padding = PaddingMode.PKCS7;
+            using MemoryStream output = new();
+            using CryptoStream cryptoStream = new(output, aes.CreateEncryptor(), CryptoStreamMode.Write);
+            cryptoStream.Write(Encoding.Unicode.GetBytes(encryptionSource));
+            cryptoStream.FlushFinalBlock();
+            cryptoStream.Close();
+
+            encryptedText = Convert.ToBase64String(output.ToArray());
+            IV = Convert.ToBase64String(aes.IV);
+        }
+
+        public string Decrypt()
+        {
+            byte[] encrpytedBytes = Convert.FromBase64String(encryptedText);
+            using Aes aes = Aes.Create();
+            aes.Key = DeriveKey();
+            var testing = Convert.FromBase64String(IV);
+            aes.IV = Convert.FromBase64String(IV);
+            aes.Padding = PaddingMode.PKCS7;
+            using MemoryStream input = new(encrpytedBytes);
+            using CryptoStream cryptoStream = new(input, aes.CreateDecryptor(), CryptoStreamMode.Read);
+            using MemoryStream output = new();
+            cryptoStream.CopyTo(output);
+            return Encoding.Unicode.GetString(output.ToArray());
         }
     }
 }
