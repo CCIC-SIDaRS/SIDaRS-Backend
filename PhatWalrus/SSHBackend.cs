@@ -115,18 +115,15 @@ namespace SSHBackend
         }
         private byte[] DeriveKey()
         {
-            byte[] salt = GenerateSalt(16);
+            byte[] emptySalt = GenerateSalt();
             int iterations = 10000;
-            int keyLength = 16;
-            var hashMethod = HashAlgorithmName.SHA384;
-            return Rfc2898DeriveBytes.Pbkdf2(Encoding.Unicode.GetBytes(encryptionPassword), salt, iterations, hashMethod, keyLength);
+            int desiredKeyLength = 16;
+            HashAlgorithmName hashMethod = HashAlgorithmName.SHA384;
+            return Rfc2898DeriveBytes.Pbkdf2(Encoding.Unicode.GetBytes(encryptionPassword),emptySalt,iterations,hashMethod,desiredKeyLength);
         }
-        private byte[] GenerateSalt(int size)
+        private byte[] GenerateSalt()
         {
-            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
-            byte[] buff = new byte[size];
-            rng.GetBytes(buff);
-            return buff;
+            return Encoding.UTF8.GetBytes("SaltBytes");
         }
 
         public void Encrypt()
