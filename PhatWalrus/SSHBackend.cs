@@ -9,6 +9,11 @@ using System.Security.Cryptography;
 using System.IO;
 using System.Security;
 using System.Security.Principal;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Nodes;
+using System.Net.Http.Headers;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Collections;
 
 namespace SSHBackend
 {
@@ -128,8 +133,31 @@ namespace SSHBackend
         // takes in the command when the tab key is pressed and returns the most likely completed command
         public string[] CiscoCommandCompletion(string[] currentCommand)
         {
-
-            return [""];
+            IEnumerable<string> matchingValues;
+            Dictionary<string, object> json = JsonSerializer.Deserialize<Dictionary<string, object>>(File.ReadAllText (assets + @"\CiscoCommandTree.json"));
+            if (currentCommand.Length > 1)
+            {
+                Dictionary<string, object> currentCommandDictionary = json;
+                try
+                {
+                    for (int i = 0; i <= currentCommand.Length - 2; i++)
+                    {
+                        currentCommandDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(currentCommandDictionary[currentCommand[i]].ToString());
+                    }
+                }catch (KeyNotFoundException ex)
+                {
+                    throw new KeyNotFoundException(ex.ToString());
+                }
+                matchingValues = currentCommandDictionary.Keys
+                                    .Where(x => x.Contains(currentCommand[currentCommand.Length - 1]));
+            }
+            else
+            {
+                matchingValues = json.Keys
+                                    .Where(x => x.Contains(currentCommand[0]));
+            }
+            
+            return matchingValues.ToArray();
         }
     }
 

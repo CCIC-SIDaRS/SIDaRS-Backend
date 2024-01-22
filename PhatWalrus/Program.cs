@@ -11,7 +11,9 @@ namespace Testing
     {
         private static void Main(string[] args)
         {
-            TestMultipleExecution();
+            SSHManager something = new SSHManager(@".\assets");
+            something.CiscoCommandCompletion("show running".Split(" "));
+            //TestMultipleExecution();
         }
 
         // Tests the continuous execution of SSH commands using the SSH connection class
