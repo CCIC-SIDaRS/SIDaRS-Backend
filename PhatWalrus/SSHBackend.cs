@@ -15,7 +15,7 @@ namespace SSHBackend
     class SSHConnection
     {
         private SshClient client { get; set; }
-        private ShellStream stream { get; set; }
+        private ShellStream? stream { get; set; }
 
         // Can send a command and recieve a response to the command
         // returns a string with the response to the command -- either the error or the result
@@ -44,9 +44,7 @@ namespace SSHBackend
         public string ExecuteExecChannel (string command)
         {
             SshCommand _command = client.CreateCommand(command);
-            Console.WriteLine("exeucting: " + _command.CommandText);
             _command.Execute();
-            Console.WriteLine("Execution Complete");
             string result = _command.Result;
             if (_command.Error != "")
             {
@@ -57,8 +55,11 @@ namespace SSHBackend
 
         public string ExecuteShellStream (string command)
         {
+            if (stream == null)
+            {
+                throw new NullReferenceException(nameof(stream) + " Please run the create shell stream function before attempting to execute commands through the shell channel");
+            }
             StringBuilder answer;
-
             StreamReader reader = new StreamReader(stream);
             StreamWriter writer = new StreamWriter(stream);
             writer.AutoFlush = true;
@@ -116,7 +117,6 @@ namespace SSHBackend
             {
                 currentClients = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(File.ReadAllText(assets + "SSHClients.sidars")) ?? new Dictionary<string, Dictionary<string, string>>();
             }catch (JsonException) { }
-            string password = Console.ReadLine();
             SymmetricEncryption encryptor = new(masterPassword, devicePassword);
             encryptor.Encrypt();
             devicePassword = encryptor.encryptedText;
@@ -133,7 +133,7 @@ namespace SSHBackend
         }
     }
 
-    // Uses AES to encrypt and decrypt strings, interface is a little jank right now
+    // Uses AES to encrypt and decrypt strings, interface is a very jank right now
     // This class should use the master password to the application as the encryption key and the master password should be hashed
     // and only stored in memory for a limited period of time once correctly entered
     class SymmetricEncryption
@@ -167,30 +167,45 @@ namespace SSHBackend
 
         public void Encrypt()
         {
-            using Aes aes = Aes.Create();
-            aes.Key = DeriveKey();
-            aes.Padding = PaddingMode.PKCS7;
-            using MemoryStream output = new();
-            using CryptoStream cryptoStream = new(output, aes.CreateEncryptor(), CryptoStreamMode.Write);
-            cryptoStream.Write(Encoding.Unicode.GetBytes(encryptionSource));
-            cryptoStream.FlushFinalBlock();
-            cryptoStream.Close();
-            encryptedText = Convert.ToBase64String(output.ToArray());
-            IV = Convert.ToBase64String(aes.IV);
+            try
+            {
+                using Aes aes = Aes.Create();
+                aes.Key = DeriveKey();
+                aes.Padding = PaddingMode.PKCS7;
+                using MemoryStream output = new();
+                using CryptoStream cryptoStream = new(output, aes.CreateEncryptor(), CryptoStreamMode.Write);
+                cryptoStream.Write(Encoding.Unicode.GetBytes(encryptionSource));
+                cryptoStream.FlushFinalBlock();
+                cryptoStream.Close();
+                encryptedText = Convert.ToBase64String(output.ToArray());
+                IV = Convert.ToBase64String(aes.IV);
+            }catch (Exception ex)
+            {
+                throw new Exception("Error during encrpytion " + ex);
+            }
         }
 
         public string Decrypt()
         {
-            byte[] encrpytedBytes = Convert.FromBase64String(encryptedText);
-            using Aes aes = Aes.Create();
-            aes.Key = DeriveKey();
-            aes.IV = Convert.FromBase64String(IV);
-            aes.Padding = PaddingMode.PKCS7;
-            using MemoryStream input = new(encrpytedBytes);
-            using CryptoStream cryptoStream = new(input, aes.CreateDecryptor(), CryptoStreamMode.Read);
-            using MemoryStream output = new();
-            cryptoStream.CopyTo(output);
-            return Encoding.Unicode.GetString(output.ToArray());
+            try
+            {
+                byte[] encrpytedBytes = Convert.FromBase64String(encryptedText);
+                using Aes aes = Aes.Create();
+                aes.Key = DeriveKey();
+                aes.IV = Convert.FromBase64String(IV);
+                aes.Padding = PaddingMode.PKCS7;
+                using MemoryStream input = new(encrpytedBytes);
+                using CryptoStream cryptoStream = new(input, aes.CreateDecryptor(), CryptoStreamMode.Read);
+                using MemoryStream output = new();
+                cryptoStream.CopyTo(output);
+                return Encoding.Unicode.GetString(output.ToArray());
+            }catch (CryptographicException ex)
+            {
+                throw new Exception("Decryption error - It is likely the correct password was not entered " + ex);
+            }catch (Exception ex)
+            {
+                throw new Exception("Unknown decryption error " + ex);
+            }
         }
     }
 }

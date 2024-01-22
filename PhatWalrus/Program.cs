@@ -17,7 +17,7 @@ namespace Testing
         // Tests the continuous execution of SSH commands using the SSH connection class
         private static void TestMultipleExecution()
         { 
-            Dictionary <string, Dictionary<string, string>> client = JsonSerializer.Deserialize<Dictionary<string,Dictionary<string, string>>>(File.ReadAllText(@"C:\Users\skier\Documents\Code\SIDaRS-Backend\PhatWalrus\assests\SSHClients.sidars"));
+            Dictionary <string, Dictionary<string, string>> client = JsonSerializer.Deserialize<Dictionary<string,Dictionary<string, string>>>(File.ReadAllText(@".\assets\SSHClients.sidars"));
             SSHConnection TestSwitch = new SSHConnection(client["Testing"]["address"], client["Testing"]["username"], ClientDecryption());
             TestSwitch.Connect();
             TestSwitch.CreateShellStream();
@@ -38,7 +38,7 @@ namespace Testing
         }
         private static void ClientAdditionAndEncryption()
         {
-            SSHManager something = new SSHManager(@"C:\Users\skier\Documents\Code\SIDaRS-Backend\PhatWalrus\assests\");
+            SSHManager something = new SSHManager(@".\assets\");
             string ID = Console.ReadLine();
             string address = Console.ReadLine();
             string username = Console.ReadLine();
@@ -48,7 +48,7 @@ namespace Testing
         }
         private static string ClientDecryption()
         {
-            Dictionary<string, Dictionary<string, string>> client = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(File.ReadAllText(@"C:\Users\skier\Documents\Code\SIDaRS-Backend\PhatWalrus\assests\SSHClients.sidars"));
+            Dictionary<string, Dictionary<string, string>> client = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(File.ReadAllText(@".\assets\SSHClients.sidars"));
             SymmetricEncryption something1 = new SymmetricEncryption("12345678!Aa", null);
             something1.encryptedText = client["Testing"]["password"];
             something1.IV = client["Testing"]["IV"];
