@@ -36,7 +36,7 @@ namespace PhatWalrus
         // Uses AES to encrypt and decrypt strings, interface is a very jank right now
         // This class should use the master password to the application as the encryption key and the master password should be hashed
         // and only stored in memory for a limited period of time once correctly entered
-        private protected static class SymmetricEncryption
+        internal static class SymmetricEncryption
         {
 
             private static byte[] DeriveKey(string encryptionPassword)
