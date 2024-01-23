@@ -110,10 +110,12 @@ namespace SSHBackend
     class SSHManager
     {
         private string assets { get; set; }
+        private Dictionary <string, object> catalystCommands { get; set; }
 
         public SSHManager(string assets)
         {
             this.assets = assets;
+            this.catalystCommands = JsonSerializer.Deserialize<Dictionary<string, object>>(File.ReadAllText(assets + @"\CiscoCommandTree.json"));
         }
         public void AddClient(string ID, string address, string username, string devicePassword, string masterPassword)
         {
@@ -134,10 +136,10 @@ namespace SSHBackend
         public string[] CiscoCommandCompletion(string[] currentCommand)
         {
             IEnumerable<string> matchingValues;
-            Dictionary<string, object> json = JsonSerializer.Deserialize<Dictionary<string, object>>(File.ReadAllText (assets + @"\CiscoCommandTree.json"));
+            
             if (currentCommand.Length > 1)
             {
-                Dictionary<string, object> currentCommandDictionary = json;
+                Dictionary<string, object> currentCommandDictionary = catalystCommands;
                 try
                 {
                     for (int i = 0; i <= currentCommand.Length - 2; i++)
@@ -149,12 +151,12 @@ namespace SSHBackend
                     throw new KeyNotFoundException(ex.ToString());
                 }
                 matchingValues = currentCommandDictionary.Keys
-                                    .Where(x => x.Contains(currentCommand[currentCommand.Length - 1]));
+                                    .Where(x => x.StartsWith(currentCommand[currentCommand.Length - 1]));
             }
             else
             {
-                matchingValues = json.Keys
-                                    .Where(x => x.Contains(currentCommand[0]));
+                matchingValues = catalystCommands.Keys
+                                    .Where(x => x.StartsWith(currentCommand[0]));
             }
             
             return matchingValues.ToArray();
