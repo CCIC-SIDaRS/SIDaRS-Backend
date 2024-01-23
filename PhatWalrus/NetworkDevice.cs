@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PhatWalrus
 {
-    internal class NetworkDevice
+    class NetworkDevice
     {
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PhatWalrus
 {
-    internal class CredentialManagement
+     class CredentialManagement
     {
     }
 }
