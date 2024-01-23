@@ -115,7 +115,6 @@ namespace SSHBackend
         public SSHManager(string assets)
         {
             this.assets = assets;
-            this.catalystCommands = JsonSerializer.Deserialize<Dictionary<string, object>>(File.ReadAllText(assets + @"\CiscoCommandTree.json"));
         }
         public void AddClient(string ID, string address, string username, string devicePassword, string masterPassword)
         {
@@ -133,34 +132,7 @@ namespace SSHBackend
             File.WriteAllText(assets+"SSHClients.sidars", json);
         }
         // takes in the command when the tab key is pressed and returns the most likely completed command
-        public string[] CiscoCommandCompletion(string[] currentCommand)
-        {
-            IEnumerable<string> matchingValues;
-            
-            if (currentCommand.Length > 1)
-            {
-                Dictionary<string, object> currentCommandDictionary = catalystCommands;
-                try
-                {
-                    for (int i = 0; i <= currentCommand.Length - 2; i++)
-                    {
-                        currentCommandDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(currentCommandDictionary[currentCommand[i]].ToString());
-                    }
-                }catch (KeyNotFoundException ex)
-                {
-                    throw new KeyNotFoundException(ex.ToString());
-                }
-                matchingValues = currentCommandDictionary.Keys
-                                    .Where(x => x.StartsWith(currentCommand[currentCommand.Length - 1]));
-            }
-            else
-            {
-                matchingValues = catalystCommands.Keys
-                                    .Where(x => x.StartsWith(currentCommand[0]));
-            }
-            
-            return matchingValues.ToArray();
-        }
+        
     }
 
     // Uses AES to encrypt and decrypt strings, interface is a very jank right now
