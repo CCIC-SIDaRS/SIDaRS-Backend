@@ -7,28 +7,37 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace PhatWalrus
 {
      class CredentialManager
      {
         private string assets { get; set; }
+        private List<Dictionary<string, string>> currentClients { get {
+                try
+                {
+                    return JsonSerializer.Deserialize<List<Dictionary<string, string>>>(File.ReadAllText(assets + "SSHClients.sidars")) ?? new List<Dictionary<string, string>>();
+                }
+                catch (JsonException)
+                {
+                    return new List<Dictionary<string, string>>();
+                }
+
+            } }
         public CredentialManager(string assets) 
         { 
             this.assets = assets;
         }
         public void AddClient(string deviceName, string address, string username, string devicePassword, string masterPassword)
         {
-            List<Dictionary<string, string>> currentClients = new List<Dictionary<string, string>>();
             string IV;
             string encryptedText;
-            try
-            {
-                currentClients = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(File.ReadAllText(assets + "SSHClients.sidars")) ?? new List<Dictionary<string,string>>();
-            }
-            catch (JsonException) { }
             SymmetricEncryption.Encrypt(devicePassword, masterPassword, out encryptedText, out IV);
             currentClients.Add (new Dictionary<string, string> { ["name"] = deviceName, ["address"] = address, ["username"] = username, ["password"] = encryptedText, ["IV"] = IV });
+        }
+        public void SaveClients()
+        {
             string json = JsonSerializer.Serialize(currentClients);
             File.WriteAllText(assets + "SSHClients.sidars", string.Empty);
             File.WriteAllText(assets + "SSHClients.sidars", json);
