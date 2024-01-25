@@ -10,20 +10,23 @@ using System.IO;
 using System.Security;
 using System.Security.Principal;
 using System.Collections;
+using CredentialManager;
 
-namespace TerminalManager
+namespace SSHBackend
 {
 
     class SSHManager
     {
         private SshClient client { get; set; }
         private ShellStream? stream { get; set; }
+        private Credentials credentials { get; set; }
 
         // Can send a command and recieve a response to the command
         // returns a string with the response to the command -- either the error or the result
-        public SSHManager(string hostaddress, string username, string password)
+        public SSHManager(string hostaddress, Credentials credentials)
         {
-            client = new SshClient(hostaddress, username, password);
+            client = new SshClient(hostaddress, credentials.GetCreds()[0], credentials.GetCreds()[1]);
+            Console.WriteLine(hostaddress);
         }
 
         public void Connect()
@@ -62,13 +65,14 @@ namespace TerminalManager
             {
                 throw new NullReferenceException(nameof(stream) + " Please run the create shell stream function before attempting to execute commands through the shell channel");
             }
-            StringBuilder answer;
+            string answer;
             StreamReader reader = new StreamReader(stream);
             StreamWriter writer = new StreamWriter(stream);
             writer.AutoFlush = true;
             WriteStream(command, writer, stream);
+            Thread.Sleep(1000);
             answer = ReadStream(reader);
-            return answer.ToString();
+            return answer;
         }
 
         public void Diconnect()
@@ -93,14 +97,14 @@ namespace TerminalManager
             }
         }
 
-        private StringBuilder ReadStream(StreamReader reader)
+        private string ReadStream(StreamReader reader)
         {
-            StringBuilder result = new StringBuilder();
-
-            string line;
-            while ((line = reader.ReadLine()) != null)
+            string result = "";
+            string line = "";
+            while (line != null)
             {
-                result.AppendLine(line);
+                line = reader.ReadLine();
+                result += line + "\n";
             }
             return result;
         }
