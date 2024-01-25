@@ -11,9 +11,9 @@ namespace TerminalManager
     {
         private string assetsFolder { get; set; }
         private Dictionary<string, object> catalystCommands { get; set; }
-        public TerminalManager() {
+        public TerminalManager(string assetsFolder) {
             this.assetsFolder = assetsFolder;
-            this.catalystCommands = JsonSerializer.Deserialize<Dictionary<string, object>>(File.ReadAllText(assetsFolder + @"\CiscoCommandTree.json"));
+            this.catalystCommands = JsonSerializer.Deserialize<Dictionary<string, object>>(File.ReadAllText(assetsFolder + @"\CiscoCommandTree.json")) ?? new Dictionary<string, object>();
         }
         public string[] CiscoCommandCompletion(string[] currentCommand)
         {
