@@ -1,18 +1,17 @@
-﻿using SSHBackend;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace PhatWalrus
+namespace TerminalManager
 {
-    class TerminalManagement
+    class TerminalManager
     {
         private string assetsFolder { get; set; }
         private Dictionary<string, object> catalystCommands { get; set; }
-        public TerminalManagement() {
+        public TerminalManager() {
             this.assetsFolder = assetsFolder;
             this.catalystCommands = JsonSerializer.Deserialize<Dictionary<string, object>>(File.ReadAllText(assetsFolder + @"\CiscoCommandTree.json"));
         }

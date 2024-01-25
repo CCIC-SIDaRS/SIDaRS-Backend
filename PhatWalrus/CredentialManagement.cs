@@ -42,6 +42,7 @@ namespace PhatWalrus
             File.WriteAllText(assets + "SSHClients.sidars", string.Empty);
             File.WriteAllText(assets + "SSHClients.sidars", json);
         }
+
         // Uses AES to encrypt and decrypt strings, interface is a very jank right now
         // This class should use the master password to the application as the encryption key and the master password should be hashed
         // and only stored in memory for a limited period of time once correctly entered
