@@ -9,7 +9,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace PhatWalrus
+namespace CredentialManager
 {
      class CredentialManager
      {
