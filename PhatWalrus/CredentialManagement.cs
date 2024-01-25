@@ -11,99 +11,88 @@ using System.Xml.Serialization;
 
 namespace CredentialManager
 {
-     class CredentialManager
-     {
-        private string assets { get; set; }
-        private List<Dictionary<string, string>> currentClients { get; set; }
-        public CredentialManager(string assets) 
-        { 
-            this.assets = assets;
+    class Credentials
+    {
+        private string username { get; set; }
+        private string password { get; set; }
+        public Credentials (string username, string password, bool encrypted = true)
+        {
+            this.username = username;
+            if (!encrypted)
+            {
+                this.password = SymmetricEncryption.Encrypt(password, "12345678!Aa");
+            }else
+            {
+                this.password = password;
+            }
+        }
+        public string[] GetCreds()
+        {
+            return [username, SymmetricEncryption.Decrypt(password, "12345678!Aa")];
+        }
+        public string Save()
+        {
+            return "{" + "username: " + username + ", " + "password: " + password + "}";
+        }
+    }
+    static class SymmetricEncryption
+    {
+
+        private static byte[] DeriveKey(string encryptionPassword)
+        {
+            byte[] emptySalt = GenerateSalt();
+            int iterations = 10000;
+            int desiredKeyLength = 16;
+            HashAlgorithmName hashMethod = HashAlgorithmName.SHA384;
+            return Rfc2898DeriveBytes.Pbkdf2(Encoding.Unicode.GetBytes(encryptionPassword), emptySalt, iterations, hashMethod, desiredKeyLength);
+        }
+        private static byte[] GenerateSalt()
+        {
+            return Encoding.UTF8.GetBytes("SaltBytes");
+        }
+
+        public static string Encrypt(string sourceText, string password)
+        {
             try
             {
-                currentClients =  JsonSerializer.Deserialize<List<Dictionary<string, string>>>(File.ReadAllText(assets + "SSHClients.sidars")) ?? new List<Dictionary<string, string>>();
+                using Aes aes = Aes.Create();
+                aes.Key = DeriveKey(password);
+                aes.Padding = PaddingMode.PKCS7;
+                using MemoryStream output = new();
+                using CryptoStream cryptoStream = new(output, aes.CreateEncryptor(), CryptoStreamMode.Write);
+                cryptoStream.Write(Encoding.Unicode.GetBytes(sourceText));
+                cryptoStream.FlushFinalBlock();
+                cryptoStream.Close();
+                return Convert.ToBase64String(output.ToArray()) + "'''" + Convert.ToBase64String(aes.IV); ;
             }
-            catch (JsonException)
+            catch (Exception ex)
             {
-                currentClients =  new List<Dictionary<string, string>>();
+                throw new Exception("Error during encrpytion " + ex);
             }
         }
-        public void AddClient(string deviceName, string address, string username, string devicePassword, string masterPassword)
+
+        public static string Decrypt(string encryptedText, string password)
         {
-            string IV;
-            string encryptedText;
-            SymmetricEncryption.Encrypt(devicePassword, masterPassword, out encryptedText, out IV);
-            currentClients.Add (new Dictionary<string, string> { ["name"] = deviceName, ["address"] = address, ["username"] = username, ["password"] = encryptedText, ["IV"] = IV });
-        }
-        public void SaveClients()
-        {
-            string json = JsonSerializer.Serialize(currentClients);
-            File.WriteAllText(assets + "SSHClients.sidars", string.Empty);
-            File.WriteAllText(assets + "SSHClients.sidars", json);
-        }
-
-        // Uses AES to encrypt and decrypt strings, interface is a very jank right now
-        // This class should use the master password to the application as the encryption key and the master password should be hashed
-        // and only stored in memory for a limited period of time once correctly entered
-        internal static class SymmetricEncryption
-        {
-
-            private static byte[] DeriveKey(string encryptionPassword)
+            try
             {
-                byte[] emptySalt = GenerateSalt();
-                int iterations = 10000;
-                int desiredKeyLength = 16;
-                HashAlgorithmName hashMethod = HashAlgorithmName.SHA384;
-                return Rfc2898DeriveBytes.Pbkdf2(Encoding.Unicode.GetBytes(encryptionPassword), emptySalt, iterations, hashMethod, desiredKeyLength);
+                byte[] encrpytedBytes = Convert.FromBase64String(encryptedText.Split("'''")[0]);
+                using Aes aes = Aes.Create();
+                aes.Key = DeriveKey(password);
+                aes.IV = Convert.FromBase64String(encryptedText.Split("'''")[1]);
+                aes.Padding = PaddingMode.PKCS7;
+                using MemoryStream input = new(encrpytedBytes);
+                using CryptoStream cryptoStream = new(input, aes.CreateDecryptor(), CryptoStreamMode.Read);
+                using MemoryStream output = new();
+                cryptoStream.CopyTo(output);
+                return Encoding.Unicode.GetString(output.ToArray());
             }
-            private static byte[] GenerateSalt()
+            catch (CryptographicException ex)
             {
-                return Encoding.UTF8.GetBytes("SaltBytes");
+                throw new Exception("Decryption error - It is likely the correct password was not entered " + ex);
             }
-
-            public static void Encrypt(string sourceText, string password, out string text, out string IV)
+            catch (Exception ex)
             {
-                try
-                {
-                    using Aes aes = Aes.Create();
-                    aes.Key = DeriveKey(password);
-                    aes.Padding = PaddingMode.PKCS7;
-                    using MemoryStream output = new();
-                    using CryptoStream cryptoStream = new(output, aes.CreateEncryptor(), CryptoStreamMode.Write);
-                    cryptoStream.Write(Encoding.Unicode.GetBytes(sourceText));
-                    cryptoStream.FlushFinalBlock();
-                    cryptoStream.Close();
-                    text = Convert.ToBase64String(output.ToArray());
-                    IV = Convert.ToBase64String(aes.IV);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception("Error during encrpytion " + ex);
-                }
-            }
-
-            public static void Decrypt(string encryptedText, string IV, string password, out string decryptedText)
-            {
-                try
-                {
-                    byte[] encrpytedBytes = Convert.FromBase64String(encryptedText);
-                    using Aes aes = Aes.Create();
-                    aes.Key = DeriveKey(password);
-                    aes.IV = Convert.FromBase64String(IV);
-                    aes.Padding = PaddingMode.PKCS7;
-                    using MemoryStream input = new(encrpytedBytes);
-                    using CryptoStream cryptoStream = new(input, aes.CreateDecryptor(), CryptoStreamMode.Read);
-                    using MemoryStream output = new();
-                    cryptoStream.CopyTo(output);
-                    decryptedText = Encoding.Unicode.GetString(output.ToArray());
-                }
-                catch (CryptographicException ex)
-                {
-                    throw new Exception("Decryption error - It is likely the correct password was not entered " + ex);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception("Unknown decryption error " + ex);
-                }
+                throw new Exception("Unknown decryption error " + ex);
             }
         }
     }
