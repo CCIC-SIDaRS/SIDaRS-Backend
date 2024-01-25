@@ -9,25 +9,23 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace PhatWalrus
+namespace CredentialManager
 {
      class CredentialManager
      {
         private string assets { get; set; }
-        private List<Dictionary<string, string>> currentClients { get {
-                try
-                {
-                    return JsonSerializer.Deserialize<List<Dictionary<string, string>>>(File.ReadAllText(assets + "SSHClients.sidars")) ?? new List<Dictionary<string, string>>();
-                }
-                catch (JsonException)
-                {
-                    return new List<Dictionary<string, string>>();
-                }
-
-            } }
+        private List<Dictionary<string, string>> currentClients { get; set; }
         public CredentialManager(string assets) 
         { 
             this.assets = assets;
+            try
+            {
+                currentClients =  JsonSerializer.Deserialize<List<Dictionary<string, string>>>(File.ReadAllText(assets + "SSHClients.sidars")) ?? new List<Dictionary<string, string>>();
+            }
+            catch (JsonException)
+            {
+                currentClients =  new List<Dictionary<string, string>>();
+            }
         }
         public void AddClient(string deviceName, string address, string username, string devicePassword, string masterPassword)
         {

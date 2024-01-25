@@ -15,16 +15,17 @@ using System.Net.Http.Headers;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Collections;
 
-namespace SSHBackend
+namespace TerminalManager
 {
-    class SSHConnection
+
+    class SSHManager
     {
         private SshClient client { get; set; }
         private ShellStream? stream { get; set; }
 
         // Can send a command and recieve a response to the command
         // returns a string with the response to the command -- either the error or the result
-        public SSHConnection(string hostaddress, string username, string password)
+        public SSHManager(string hostaddress, string username, string password)
         {
             client = new SshClient(hostaddress, username, password);
         }
@@ -34,11 +35,12 @@ namespace SSHBackend
             try
             {
                 client.Connect();
-            }catch (Exception ex) 
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.ToString());
             }
-            
+
         }
 
         public void CreateShellStream()
@@ -46,7 +48,7 @@ namespace SSHBackend
             stream = client.CreateShellStream("customCommand", 80, 24, 800, 600, 1024);
         }
 
-        public string ExecuteExecChannel (string command)
+        public string ExecuteExecChannel(string command)
         {
             SshCommand _command = client.CreateCommand(command);
             _command.Execute();
@@ -58,7 +60,7 @@ namespace SSHBackend
             return result;
         }
 
-        public string ExecuteShellStream (string command)
+        public string ExecuteShellStream(string command)
         {
             if (stream == null)
             {
@@ -68,7 +70,7 @@ namespace SSHBackend
             StreamReader reader = new StreamReader(stream);
             StreamWriter writer = new StreamWriter(stream);
             writer.AutoFlush = true;
-            WriteStream(command , writer, stream);
+            WriteStream(command, writer, stream);
             answer = ReadStream(reader);
             return answer.ToString();
         }
@@ -78,11 +80,12 @@ namespace SSHBackend
             try
             {
                 client.Disconnect();
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.ToString());
             }
-            
+
         }
 
         private void WriteStream(string cmd, StreamWriter writer, ShellStream stream)
@@ -105,19 +108,5 @@ namespace SSHBackend
             }
             return result;
         }
-    }
-
-    class SSHManager
-    {
-        private string assets { get; set; }
-        private Dictionary <string, object> catalystCommands { get; set; }
-
-        public SSHManager(string assets)
-        {
-            this.assets = assets;
-        }
-        
-        // takes in the command when the tab key is pressed and returns the most likely completed command
-        
     }
 }
