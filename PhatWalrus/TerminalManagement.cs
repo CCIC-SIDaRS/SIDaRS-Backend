@@ -28,13 +28,17 @@ namespace TerminalManager
                     {
                         currentCommandDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(currentCommandDictionary[currentCommand[i]].ToString());
                     }
+                    matchingValues = currentCommandDictionary.Keys
+                                    .Where(x => x.StartsWith(currentCommand[currentCommand.Length - 1]));
                 }
                 catch (KeyNotFoundException ex)
                 {
                     throw new KeyNotFoundException(ex.ToString());
                 }
-                matchingValues = currentCommandDictionary.Keys
-                                    .Where(x => x.StartsWith(currentCommand[currentCommand.Length - 1]));
+                catch (Exception ex)
+                {
+                    throw new Exception("It errored: " + ex.ToString());
+                }
             }
             else
             {
