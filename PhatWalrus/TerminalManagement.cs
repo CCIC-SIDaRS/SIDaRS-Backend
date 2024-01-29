@@ -12,9 +12,9 @@ namespace NetworkDeviceManager
 {
     enum ManagementProtocol 
     {
-        SSH,
-        SSHNoExe,
-        SNMP
+        SSH = 0,
+        SSHNoExe = 1,
+        SNMP = 2
     }
 
     class TerminalManager
@@ -41,15 +41,19 @@ namespace NetworkDeviceManager
                 sshManager = new SSHManager(this.v4address, this.credentials, this.readCallback);
                 sshManager.Connect();
                 var task = new Task(() => { sshManager.ExecuteExecChannel("show version"); });
+
+                readCallback("Attempting SSH (Exec)...");
+
                 if (task.Wait(TimeSpan.FromSeconds(5)))
                 {
                     this.protocol = ManagementProtocol.SSH;
                 } else
                 {
+                    readCallback("SSH (Exec) unavailable\nAttempting SSHNoExec...");
                     this.protocol = ManagementProtocol.SSHNoExe;
                     sshManager.sshType = ManagementProtocol.SSHNoExe;
                 }
-                sshManager.Diconnect();
+                sshManager.Disconnect();
             }
         }
 
@@ -89,18 +93,41 @@ namespace NetworkDeviceManager
 
         public void SendCommand(string command)
         {
-            if (protocol == ManagementProtocol.SSH)
+            if ((int) protocol <= 1)
             {
-                sshManager.ExecuteExecChannel(command);
-            }
-            else if (protocol == ManagementProtocol.SSHNoExe) 
-            {
-                sshManager.Connect();
-                sshManager.ExecuteShellStream(command);
-                sshManager.Diconnect();
+                if (protocol == ManagementProtocol.SSH)
+                {
+                    sshManager.ExecuteExecChannel(command);
+                }else if (protocol == ManagementProtocol.SSHNoExe)
+                {
+                    sshManager.ExecuteShellStream(command);
+                }else
+                {
+                    this.readCallback("Failed to send SSH command.");
+                }
             } else
             {
-                this.readCallback("Failed to send SSH command.");
+                throw new Exception("SSH MUST EXIST YOU FOOL");
+            }
+        }
+        public void Connect()
+        {
+            if ((int) protocol <= 1)
+            {
+                sshManager.Connect();
+            }else
+            {
+                throw new Exception("FU");
+            }
+        }
+        public void Disconnect()
+        {
+            if ((int) protocol <= 1)
+            {
+                sshManager.Disconnect();
+            }else
+            {
+                throw new Exception("FU");
             }
         }
     }

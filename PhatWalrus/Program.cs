@@ -6,6 +6,8 @@ using System.Security.Principal;
 using System.Transactions;
 using NetworkDeviceManager;
 using CredentialManager;
+using SaveManager;
+using System.ComponentModel;
 
 namespace Testing
 {
@@ -17,10 +19,36 @@ namespace Testing
         }
         private static void Main(string[] args)
         {
-            Credentials credentials = new Credentials("walrus", "12345678!Aa", false);
-            NetworkDevice device = new NetworkDevice("Testing", "192.168.1.254", [1,2], new List<NetworkDevice>(), credentials, @".\assets", ConnectionReadCallback);
+            Console.Write("Username: ");
+            string username = Console.ReadLine();
+            Console.Write("Password: ");
+            string password = Console.ReadLine();
 
-            device.terminal.SendCommand("Show Running-Config");
+            Credentials master = new Credentials(username, Convert.ToBase64String(SymmetricEncryption.Hash(password, "FATWALRUS!")));
+            SymmetricEncryption.SetMaster(password);
+
+            Credentials deviceCredentials = new Credentials("walrus", "12345678!Aa", false);
+            NetworkDevice device = new NetworkDevice("Testing", "192.168.1.254", [1,2], new List<NetworkDevice>(), deviceCredentials, @".\assets", ConnectionReadCallback);
+
+            device.terminal.Connect();
+
+            bool runTerminal = true;
+            while (runTerminal)
+            {
+                string cmdInput = Console.ReadLine();
+                if (cmdInput == "stop")
+                {
+                    runTerminal = false;
+                } else
+                {
+                    device.terminal.SendCommand(cmdInput);
+                }
+                break;
+            }
+            
+            device.terminal.Disconnect();
+
+            SaveSystem.Save(@".\assets\savefile.sidars", [device], master);
         }
     }
 }

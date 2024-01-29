@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using CredentialManager;
@@ -30,6 +32,10 @@ namespace NetworkDeviceManager
             this.readCallback = readCallback;
 
             this.terminal = new TerminalManager(this.assetsDir, this.v4address, ManagementProtocol.SSH, this.credentials, this.readCallback);
+        }
+        public string Save()
+        {
+            return JsonSerializer.Serialize(this);
         }
     }
 }

@@ -42,17 +42,18 @@ namespace SSHBackend
             while (connected)
             {
                 string output = ReadStream(reader);
-                if (output != null)
+                if (output != null && output != "" && output != "\n")
                 {
                     readCallback(output);
                 }
-                Thread.Sleep(1000);
+                Thread.Sleep(500);
             }
         }
         public void Connect()
         {
             try
             {
+                client.Connect();
                 if (sshType == ManagementProtocol.SSHNoExe)
                 {
                     connected = true;
@@ -62,9 +63,7 @@ namespace SSHBackend
                     readThread = new Thread(ReadThreadMethod);
                     readThread.IsBackground = true;
                     readThread.Start();
-                }
-
-                client.Connect();
+                }  
             }
             catch (Exception ex)
             {
@@ -101,7 +100,7 @@ namespace SSHBackend
             WriteStream(command, writer, stream);
         }
 
-        public void Diconnect()
+        public void Disconnect()
         {
             try
             {
