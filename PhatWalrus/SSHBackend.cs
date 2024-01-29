@@ -55,7 +55,7 @@ namespace SSHBackend
             {
                 if (sshType == ManagementProtocol.SSHNoExe)
                 {
-                    connected = false;
+                    connected = true;
                     CreateShellStream();
 
                     // Initialize read thread
