@@ -19,23 +19,26 @@ namespace NetworkDeviceManager
 
     class TerminalManager
     {
+        public delegate void ReadCallback(string output);
         private string assetsDir { get; set; }
         private Dictionary<string, object> catalystCommands { get; set; }
         private string v4address { get; set; }
         private ManagementProtocol protocol { get; set; }
         private Credentials credentials { get; set; }
         private SSHManager? sshManager { get; set; }
+        private ReadCallback readCallback { get; set; }
 
-        public TerminalManager(string assetsDir, string v4address, ManagementProtocol protocol, Credentials credentials) 
+        public TerminalManager(string assetsDir, string v4address, ManagementProtocol protocol, Credentials credentials, ReadCallback readCallback) 
         {
             this.assetsDir = assetsDir;
             this.catalystCommands = JsonSerializer.Deserialize<Dictionary<string, object>>(File.ReadAllText(this.assetsDir + @"\CiscoCommandTree.json")) ?? new Dictionary<string, object>();
             this.v4address = v4address;
             this.credentials = credentials;
+            this.readCallback = readCallback;
 
             if (protocol == ManagementProtocol.SSH)
             {
-                sshManager = new SSHManager(this.v4address, this.credentials);
+                sshManager = new SSHManager(this.v4address, this.credentials, this.readCallback);
                 sshManager.Connect();
                 var task = new Task(() => { sshManager.ExecuteExecChannel("show version"); });
                 if (task.Wait(TimeSpan.FromSeconds(5)))
@@ -44,6 +47,7 @@ namespace NetworkDeviceManager
                 } else
                 {
                     this.protocol = ManagementProtocol.SSHNoExe;
+                    sshManager.sshType = ManagementProtocol.SSHNoExe;
                 }
                 sshManager.Diconnect();
             }
@@ -85,22 +89,19 @@ namespace NetworkDeviceManager
 
         public void SendCommand(string command)
         {
-            string response;
             if (protocol == ManagementProtocol.SSH)
             {
-                response = sshManager.ExecuteExecChannel(command);
+                sshManager.ExecuteExecChannel(command);
             }
             else if (protocol == ManagementProtocol.SSHNoExe) 
             {
                 sshManager.Connect();
-                sshManager.CreateShellStream();
-                response = sshManager.ExecuteShellStream(command);
+                sshManager.ExecuteShellStream(command);
                 sshManager.Diconnect();
             } else
             {
-                response = "Failed.";
+                this.readCallback("Failed to send SSH command.");
             }
-            Console.WriteLine(response);
         }
     }
 }
