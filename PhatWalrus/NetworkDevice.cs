@@ -47,7 +47,7 @@ namespace NetworkDeviceManager
                 }
                 properties[prop.Name] = prop.GetValue(this);
             }
-            return JsonSerializer.Serialize(properties);
+            return Regex.Replace (JsonSerializer.Serialize(properties), @"[^\u0000-\u007F]+", string.Empty);
         }
     }
 }

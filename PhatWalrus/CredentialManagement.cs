@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace CredentialManager
 {
@@ -39,7 +40,7 @@ namespace CredentialManager
             Dictionary<string, object> properties = new();
             foreach (PropertyInfo prop in this.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
                 properties.Add(prop.Name, prop.GetValue(this));
-            return JsonSerializer.Serialize(properties);
+            return Regex.Replace(JsonSerializer.Serialize(properties), @"[^\u0000-\u007F]+", string.Empty);
         }
     }
     static class SymmetricEncryption
