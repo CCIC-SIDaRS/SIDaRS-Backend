@@ -9,13 +9,16 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace CredentialManager
 {
     class Credentials
     {
-        internal string username { get; set; }
-        internal string password { get; set; }
+        
+        private string username { get; set; }
+        private string password { get; set; }
         public Credentials(string username, string password, bool encrypted = true)
         {
             this.username = username;
@@ -33,8 +36,10 @@ namespace CredentialManager
         }
         public string Save()
         {
-            Console.WriteLine(JsonSerializer.Serialize(this));
-            return JsonSerializer.Serialize(this);
+            Dictionary<string, object> properties = new();
+            foreach (PropertyInfo prop in this.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                properties.Add(prop.Name, prop.GetValue(this));
+            return JsonSerializer.Serialize(properties);
         }
     }
     static class SymmetricEncryption

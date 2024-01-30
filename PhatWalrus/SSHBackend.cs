@@ -12,10 +12,10 @@ using System.Security.Principal;
 using System.Collections;
 using CredentialManager;
 using NetworkDeviceManager;
+using System.Text.Json.Serialization;
 
 namespace SSHBackend
 {
-
     class SSHManager
     {
         public ManagementProtocol sshType { get; set; }

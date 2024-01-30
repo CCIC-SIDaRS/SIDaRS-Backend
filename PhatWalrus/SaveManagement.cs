@@ -1,17 +1,21 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using CredentialManager;
 using NetworkDeviceManager;
 
 
 namespace SaveManager
 {
-    static class SaveSystem
+     static class SaveSystem
     {
+
         public static void Save(string saveFile, NetworkDevice[] networkDevices, Credentials masterCredentials)
         {
+            
             Dictionary<string, object> saveDict = new();
             saveDict["MasterCredentials"] = masterCredentials.Save();
 

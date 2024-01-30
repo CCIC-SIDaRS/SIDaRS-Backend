@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using CredentialManager;
@@ -35,7 +37,17 @@ namespace NetworkDeviceManager
         }
         public string Save()
         {
-            return JsonSerializer.Serialize(this);
+            Dictionary<string, object> properties = new();
+            foreach (PropertyInfo prop in this.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                Console.WriteLine(prop.Name);
+                if (prop.Name.ToLower().Contains("readcallback"))
+                {
+                    continue;
+                }
+                properties[prop.Name] = prop.GetValue(this);
+            }
+            return JsonSerializer.Serialize(properties);
         }
     }
 }
