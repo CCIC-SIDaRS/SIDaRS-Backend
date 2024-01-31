@@ -7,6 +7,7 @@ using System.Transactions;
 using NetworkDeviceManager;
 using CredentialManager;
 using SaveManager;
+using SNMPBackend;
 using System.ComponentModel;
 
 namespace Testing
@@ -19,6 +20,8 @@ namespace Testing
         }
         private static void Main(string[] args)
         {
+            SNMPManager snmpManager = new SNMPManager();
+
             Console.Write("Username: ");
             string username = Console.ReadLine();
             Console.Write("Password: ");
