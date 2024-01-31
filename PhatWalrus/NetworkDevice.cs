@@ -22,8 +22,9 @@ namespace NetworkDeviceManager
         private Credentials credentials { get; set; }
         private string assetsDir { get; set; }
         private TerminalManager.ReadCallback readCallback { get; set; }
+        public string uid { get; private set; }
 
-        public NetworkDevice(string name, string v4address, int[] uiLocation, List<NetworkDevice> connections, Credentials credentials, string assetsDir, TerminalManager.ReadCallback readCallback) 
+        public NetworkDevice(string name, string v4address, int[] uiLocation, List<NetworkDevice> connections, Credentials credentials, string assetsDir, TerminalManager.ReadCallback readCallback, string uid = null)
         {
             this.name = name;
             this.v4address = v4address;
@@ -32,6 +33,13 @@ namespace NetworkDeviceManager
             this.credentials = credentials;
             this.assetsDir = assetsDir;
             this.readCallback = readCallback;
+            if (uid != null)
+            {
+                this.uid = uid;
+            } else
+            {
+                this.uid = DateTime.Now.ToString() + "-" + this.GetHashCode().ToString();
+            }
 
             this.terminal = new TerminalManager(this.assetsDir, this.v4address, ManagementProtocol.SSH, this.credentials, this.readCallback);
         }
@@ -47,8 +55,6 @@ namespace NetworkDeviceManager
             this.credentials = null!;
             this.assetsDir = null!;
         }
-        //TODO:
-        // Properly serialize terminal, connections and readCallBack
         public string Save()
         {
             Dictionary<string, object> properties = new();
@@ -56,12 +62,20 @@ namespace NetworkDeviceManager
             {
                 Console.WriteLine(prop.Name);
                 //TEMP!!!!!
-                if (prop.Name.ToLower().Contains("readcallback"))
+                if (prop.Name.ToLower() == "readcallback" || prop.Name.ToLower() == "terminal")
                 {
                     continue;
-                }else if (prop.Name.ToLower() == "credentials")
+                } else if (prop.Name.ToLower() == "credentials")
                 {
                     properties[prop.Name] = this.credentials.Save();
+                    continue;
+                } else if (prop.Name.ToLower() == "connections") {
+                    List<string> uids = [];
+                    foreach (NetworkDevice netDevice in this.connections)
+                    {
+                        uids.Add(netDevice.uid);
+                    }
+                    properties[prop.Name] = uids;
                     continue;
                 }
                 properties[prop.Name] = prop.GetValue(this);
