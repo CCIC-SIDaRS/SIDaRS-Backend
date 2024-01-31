@@ -31,11 +31,11 @@ namespace CredentialManager
                 this.password = password;
             }
         }
-        public Credentials()
+        public Credentials(Dictionary<string,string> serializedData)
         {
             // This constructor is for use with deserializers
-            this.password = null!;
-            this.username = null!;
+            this.username = serializedData[nameof(this.username)];
+            this.password = serializedData[nameof(this.password)];
         }
         public string[] GetCreds()
         {

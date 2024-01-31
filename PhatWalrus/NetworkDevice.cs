@@ -18,7 +18,7 @@ namespace NetworkDeviceManager
         public string v4address { get; private set; }
         public int[] uiLocation {  get; private set; }
         public List<NetworkDevice> connections { get; private set; }
-        public TerminalManager terminal { get; set; }
+        public TerminalManager terminal { get; private set; }
         private Credentials credentials { get; set; }
         private string assetsDir { get; set; }
         private TerminalManager.ReadCallback readCallback { get; set; }
@@ -43,17 +43,14 @@ namespace NetworkDeviceManager
 
             this.terminal = new TerminalManager(this.assetsDir, this.v4address, ManagementProtocol.SSH, this.credentials, this.readCallback);
         }
-        public NetworkDevice()
+        public NetworkDevice(Dictionary<string, object> serializedData)
         {
-            // This constructor is for use with deserializers
-            //TODO
-            //need to deserialize terminal, credentials, and connections objects into the correct data types
-            this.name = null!;
-            this.v4address = null!;
-            this.uiLocation= null!;
-            this.connections = null!;
-            this.credentials = null!;
-            this.assetsDir = null!;
+            this.name = (string)serializedData[nameof(name)];
+            this.v4address = (string)serializedData[nameof(v4address)];
+            this.uiLocation = (int[])serializedData[nameof(uiLocation)];
+            this.uid = (string)serializedData[nameof(uid)];
+            this.assetsDir = (string)serializedData[nameof(assetsDir)];
+            this.credentials = new Credentials(JsonSerializer.Deserialize<Dictionary<string,string>>((string)serializedData[nameof(credentials)]));
         }
         public string Save()
         {
@@ -81,6 +78,10 @@ namespace NetworkDeviceManager
                 properties[prop.Name] = prop.GetValue(this);
             }
             return Regex.Replace (JsonSerializer.Serialize(properties), @"[^\u0000-\u007F]+", string.Empty);
+        }
+        public void SetConnections(List<NetworkDevice> connections)
+        {
+            this.connections = connections;
         }
     }
 }
