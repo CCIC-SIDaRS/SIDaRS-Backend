@@ -33,6 +33,7 @@ namespace CredentialManager
         }
         public Credentials()
         {
+            // This constructor is for use with deserializers
             this.password = null!;
             this.username = null!;
         }

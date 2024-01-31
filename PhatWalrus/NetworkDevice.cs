@@ -37,6 +37,9 @@ namespace NetworkDeviceManager
         }
         public NetworkDevice()
         {
+            // This constructor is for use with deserializers
+            //TODO
+            //need to deserialize terminal, credentials, and connections objects into the correct data types
             this.name = null!;
             this.v4address = null!;
             this.uiLocation= null!;
@@ -44,17 +47,19 @@ namespace NetworkDeviceManager
             this.credentials = null!;
             this.assetsDir = null!;
         }
+        //TODO:
+        // Properly serialize terminal, connections and readCallBack
         public string Save()
         {
             Dictionary<string, object> properties = new();
             foreach (PropertyInfo prop in this.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
                 Console.WriteLine(prop.Name);
+                //TEMP!!!!!
                 if (prop.Name.ToLower().Contains("readcallback"))
                 {
                     continue;
-                }
-                if (prop.Name.ToLower() == "credentials")
+                }else if (prop.Name.ToLower() == "credentials")
                 {
                     properties[prop.Name] = this.credentials.Save();
                     continue;
