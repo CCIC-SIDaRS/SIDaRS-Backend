@@ -35,6 +35,15 @@ namespace NetworkDeviceManager
 
             this.terminal = new TerminalManager(this.assetsDir, this.v4address, ManagementProtocol.SSH, this.credentials, this.readCallback);
         }
+        public NetworkDevice()
+        {
+            this.name = null!;
+            this.v4address = null!;
+            this.uiLocation= null!;
+            this.connections = null!;
+            this.credentials = null!;
+            this.assetsDir = null!;
+        }
         public string Save()
         {
             Dictionary<string, object> properties = new();
@@ -43,6 +52,11 @@ namespace NetworkDeviceManager
                 Console.WriteLine(prop.Name);
                 if (prop.Name.ToLower().Contains("readcallback"))
                 {
+                    continue;
+                }
+                if (prop.Name.ToLower() == "credentials")
+                {
+                    properties[prop.Name] = this.credentials.Save();
                     continue;
                 }
                 properties[prop.Name] = prop.GetValue(this);

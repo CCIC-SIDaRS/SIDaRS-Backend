@@ -31,6 +31,11 @@ namespace CredentialManager
                 this.password = password;
             }
         }
+        public Credentials()
+        {
+            this.password = null!;
+            this.username = null!;
+        }
         public string[] GetCreds()
         {
             return [username, SymmetricEncryption.Decrypt(password, SymmetricEncryption.master)];

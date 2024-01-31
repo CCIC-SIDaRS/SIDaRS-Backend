@@ -48,7 +48,7 @@ namespace Testing
             
             device.terminal.Disconnect();
 
-            SaveSystem.Save(@".\assets\savefile.sidars", [device], master);
+            SaveSystem.Save(@".\assets\SaveFile.sidars", [device], master);
         }
     }
 }
